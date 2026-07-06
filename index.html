@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mariam Hassan — Software Engineer</title>
+<meta name="description" content="Mariam Hassan — software engineer building at the intersection of AI, brain-computer interfaces, and robotics.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a href="#top" class="nav-name">MARIAM HASSAN</a>
+  <div class="nav-links">
+    <a href="#about">About</a>
+    <a href="#projects">Projects</a>
+    <a href="#education">Education</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="hero-inner">
+    <h1>Mariam Hassan</h1>
+    <p class="hero-role">Software engineer — applied AI, brain-computer interfaces, and robotics</p>
+    <div class="wave-wrap">
+      <canvas id="waveCanvas" aria-hidden="true"></canvas>
+    </div>
+    <p class="wave-caption">move your cursor over the signal</p>
+  </div>
+</header>
+
+<main>
+
+  <section class="section reveal" id="about">
+    <h2 class="section-label">About</h2>
+    <p class="about-text">
+      Computer Science graduate building hands-on experience across applied AI, brain-computer
+      interfaces, and robotics. I'm currently building an independent project portfolio that
+      includes an EEG-based attention/emotion state classifier, a reinforcement learning agent
+      for robotic arm control, and a real-time biosignal inference dashboard.
+    </p>
+    <p class="about-text">
+      In October 2026, I'll begin a Master of Science in Applied AI and Cybersecurity, with a focus on
+      neurotechnology and biosignal-based machine learning.
+    </p>
+    <p class="about-text">
+      Open to entry-level Software Engineer roles where I can keep building in backend development and
+      applied ML.
+    </p>
+  </section>
+
+  <section class="section" id="projects">
+    <h2 class="section-label">Projects</h2>
+    <div class="project-grid">
+
+      <article class="project-card reveal">
+        <div class="project-head">
+          <h3>EEG Attention / Emotion State Classifier</h3>
+          <span class="status-tag">In progress</span>
+        </div>
+        <p class="project-summary">Signal processing and ML pipeline for classifying attention and emotional state from raw EEG.</p>
+
+        <div class="demo-box">
+          <canvas id="eegDemoCanvas" aria-hidden="true"></canvas>
+          <div class="demo-controls">
+            <label for="eegSlider" class="demo-label">Signal amplitude</label>
+            <input type="range" id="eegSlider" min="0" max="100" value="30">
+            <span class="demo-readout" id="eegState">Predicted state: Relaxed</span>
+          </div>
+        </div>
+
+        <p class="project-detail-text">
+          Bandpass filtering isolates relevant brainwave frequencies, and Independent Component Analysis (ICA)
+          removes artifacts like eye blinks and muscle movement. Band-power features are extracted and fed
+          into SVM and Random Forest classifiers. Drag the slider above to see how signal amplitude relates
+          to the predicted state.
+        </p>
+        <p class="project-stack">Python · MNE · scikit-learn · NumPy</p>
+      </article>
+
+      <article class="project-card reveal">
+        <div class="project-head">
+          <h3>Reinforcement Learning for Robotic Arm Control</h3>
+          <span class="status-tag">In progress</span>
+        </div>
+        <p class="project-summary">A PPO agent learning continuous-action control for a simulated robotic arm.</p>
+
+        <div class="demo-box">
+          <canvas id="armDemoCanvas" aria-hidden="true"></canvas>
+          <div class="demo-controls">
+            <span class="demo-label">Drag inside the box to move the arm</span>
+          </div>
+        </div>
+
+        <p class="project-detail-text">
+          Trained in a PyBullet and Gymnasium environment on a reach-and-grasp task using Stable-Baselines3.
+          The demo above is simple inverse kinematics — dragging moves the end effector the way a human would.
+          The actual RL agent learns this kind of motion on its own through trial and reward, without being
+          told the geometry directly.
+        </p>
+        <p class="project-stack">Python · PyBullet · Gymnasium · Stable-Baselines3</p>
+      </article>
+
+      <article class="project-card reveal">
+        <div class="project-head">
+          <h3>Real-Time Biosignal Inference Dashboard</h3>
+          <span class="status-tag">In progress</span>
+        </div>
+        <p class="project-summary">A full-stack system streaming live model predictions to an interactive dashboard.</p>
+
+        <div class="demo-box">
+          <canvas id="dashDemoCanvas" aria-hidden="true"></canvas>
+          <div class="demo-controls">
+            <button id="dashToggle" class="demo-btn">Pause stream</button>
+            <span class="demo-readout" id="dashReadout">0.00 &micro;V</span>
+          </div>
+        </div>
+
+        <p class="project-detail-text">
+          A Python inference service serves predictions from a trained biosignal model, streamed to a Spring
+          Boot backend via WebFlux and Server-Sent Events, and rendered on a front-end dashboard that updates
+          live as data streams in. The demo above simulates that live stream.
+        </p>
+        <p class="project-stack">Python · FastAPI · Spring Boot · WebFlux · JavaScript</p>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="section reveal" id="education">
+    <h2 class="section-label">Education</h2>
+    <div class="edu-grid">
+      <div class="edu-item">
+        <h3>Master of Science, Applied AI and Cybersecurity</h3>
+        <p class="edu-meta">Capella University · Online · Starting October 2026</p>
+      </div>
+      <div class="edu-item">
+        <h3>Bachelor of Science, Computer Science</h3>
+        <p class="edu-meta">Capella University · June 2026</p>
+      </div>
+      <div class="edu-item">
+        <h3>Data Analytics Bootcamp</h3>
+        <p class="edu-meta">Rice University</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section reveal" id="contact">
+    <h2 class="section-label">Contact</h2>
+    <div class="contact-block">
+      <a href="mailto:mh011701995@gmail.com" class="contact-link">mh011701995@gmail.com</a>
+      <p class="contact-meta">Austin, Texas</p>
+      <div class="contact-social">
+        <a href="https://github.com/mh011701995" target="_blank" rel="noopener">GitHub</a>
+        <a href="#" target="_blank" rel="noopener" id="linkedinLink">LinkedIn</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <span>mariamhassan.com</span>
+  <span>&copy; 2026</span>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
