@@ -392,11 +392,13 @@ var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matche
   draw();
 })();
 
-// ---------- Magnetic nav name letters ----------
+// ---------- Magnetic nav name letters + periodic wave ----------
 (function () {
   var nav = document.getElementById('navName');
   if (!nav) return;
   var letters = nav.querySelectorAll('.ml');
+  var reducedMotionNav = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   document.addEventListener('mousemove', function (e) {
     letters.forEach(function (letter) {
       var rect = letter.getBoundingClientRect();
@@ -410,6 +412,23 @@ var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matche
       letter.style.transform = 'translateY(' + lift + 'px) scale(' + scale + ')';
     });
   });
+
+  function triggerWave() {
+    letters.forEach(function (letter, i) {
+      setTimeout(function () {
+        letter.style.transform = 'translateY(-7px) scale(1.15)';
+        setTimeout(function () {
+          letter.style.transform = '';
+        }, 200);
+      }, i * 55);
+    });
+  }
+
+  if (!reducedMotionNav) {
+    // wave once shortly after load, then repeat periodically
+    setTimeout(triggerWave, 600);
+    setInterval(triggerWave, 9000);
+  }
 })();
 
 // ---------- Scroll-spy nav highlighting ----------
@@ -460,45 +479,24 @@ var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matche
   });
 })();
 
-// ---------- Typewriter status line ----------
+// ---------- Typewriter hero tagline ----------
 (function () {
-  var el = document.getElementById('typewriterText');
+  var el = document.getElementById('heroRoleText');
   if (!el) return;
-  var messages = [
-    'currently building: EEG classifier, robotic arm control, biosignal dashboard',
-    'status: 4 independent projects in progress',
-  ];
-  var msgIndex = 0;
+  var fullText = 'Software engineer — applied AI, brain-computer interfaces, and robotics';
   var charIndex = 0;
-  var deleting = false;
   var reducedMotionTW = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function tick() {
-    var current = messages[msgIndex];
-    if (!deleting) {
-      charIndex++;
-      el.textContent = '> ' + current.slice(0, charIndex);
-      if (charIndex === current.length) {
-        deleting = true;
-        setTimeout(tick, 1800);
-        return;
-      }
-      setTimeout(tick, 38);
-    } else {
-      charIndex--;
-      el.textContent = '> ' + current.slice(0, charIndex);
-      if (charIndex === 0) {
-        deleting = false;
-        msgIndex = (msgIndex + 1) % messages.length;
-        setTimeout(tick, 400);
-        return;
-      }
-      setTimeout(tick, 18);
+    charIndex++;
+    el.textContent = fullText.slice(0, charIndex);
+    if (charIndex < fullText.length) {
+      setTimeout(tick, 28);
     }
   }
 
   if (reducedMotionTW) {
-    el.textContent = '> ' + messages[0];
+    el.textContent = fullText;
   } else {
     tick();
   }
