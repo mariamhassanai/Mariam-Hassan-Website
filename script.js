@@ -281,6 +281,117 @@ var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matche
   });
 })();
 
+// ---------- Closed-loop demo: decoded signal auto-drives the arm ----------
+(function () {
+  var canvas = document.getElementById('loopDemoCanvas');
+  var label = document.getElementById('loopIntentLabel');
+  if (!canvas || !label) return;
+  var ctx = canvas.getContext('2d');
+  var dpr = window.devicePixelRatio || 1;
+
+  function resize() {
+    var rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // same intent -> target mapping as the Python closed_loop_control.py version
+  var INTENTS = {
+    REST:        { x: 0.15, y: -0.55 },
+    REACH_LEFT:  { x: -0.85, y: 0.05 },
+    REACH_RIGHT: { x: 0.85, y: 0.05 },
+    REACH_UP:    { x: 0.10, y: 0.85 },
+    REACH_DOWN:  { x: 0.10, y: -0.20 }
+  };
+  var SEQUENCE = ['REST', 'REACH_RIGHT', 'REST', 'REACH_UP', 'REACH_LEFT', 'REST', 'REACH_DOWN', 'REST'];
+  var FRAMES_PER_INTENT = 55;
+
+  var L1 = 0.55, L2 = 0.45;
+  var current = { x: INTENTS.REST.x, y: INTENTS.REST.y };
+  var frameCount = 0;
+
+  function solveIK(x, y) {
+    var dist = Math.min(Math.hypot(x, y), L1 + L2 - 0.001);
+    dist = Math.max(dist, Math.abs(L1 - L2) + 0.001);
+    var a = Math.atan2(y, x);
+    var cosA = (L1 * L1 + dist * dist - L2 * L2) / (2 * L1 * dist);
+    cosA = Math.max(-1, Math.min(1, cosA));
+    var theta1 = a - Math.acos(cosA);
+    var cosB = (L1 * L1 + L2 * L2 - dist * dist) / (2 * L1 * L2);
+    cosB = Math.max(-1, Math.min(1, cosB));
+    var theta2 = Math.PI - Math.acos(cosB);
+    return [theta1, theta2];
+  }
+
+  function forwardFK(theta1, theta2) {
+    var ex = L1 * Math.cos(theta1);
+    var ey = L1 * Math.sin(theta1);
+    var fx = ex + L2 * Math.cos(theta1 + theta2);
+    var fy = ey + L2 * Math.sin(theta1 + theta2);
+    return [[ex, ey], [fx, fy]];
+  }
+
+  function draw() {
+    var rect = canvas.getBoundingClientRect();
+    var w = rect.width, h = rect.height;
+    var scale = Math.min(w, h) / 2.6;
+    var originX = w / 2, originY = h / 2 + h * 0.18;
+
+    var idx = Math.floor(frameCount / FRAMES_PER_INTENT) % SEQUENCE.length;
+    var intentName = SEQUENCE[idx];
+    var target = INTENTS[intentName];
+
+    current.x += (target.x - current.x) * 0.08;
+    current.y += (target.y - current.y) * 0.08;
+
+    var angles = solveIK(current.x, current.y);
+    var points = forwardFK(angles[0], angles[1]);
+    var elbow = points[0], end = points[1];
+
+    ctx.clearRect(0, 0, w, h);
+
+    ctx.strokeStyle = '#E3E3E1';
+    ctx.lineWidth = 2.6;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(originX, originY);
+    ctx.lineTo(originX + elbow[0] * scale, originY - elbow[1] * scale);
+    ctx.lineTo(originX + end[0] * scale, originY - end[1] * scale);
+    ctx.stroke();
+
+    ctx.fillStyle = '#9A9A98';
+    ctx.beginPath();
+    ctx.arc(originX, originY, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(originX + elbow[0] * scale, originY - elbow[1] * scale, 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#F5F5F3';
+    ctx.beginPath();
+    ctx.arc(originX + end[0] * scale, originY - end[1] * scale, 4.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // target marker
+    ctx.strokeStyle = '#767674';
+    ctx.lineWidth = 1.2;
+    var tx = originX + target.x * scale, ty = originY - target.y * scale;
+    ctx.beginPath();
+    ctx.moveTo(tx - 5, ty - 5); ctx.lineTo(tx + 5, ty + 5);
+    ctx.moveTo(tx - 5, ty + 5); ctx.lineTo(tx + 5, ty - 5);
+    ctx.stroke();
+
+    label.textContent = 'Decoded intent: ' + intentName;
+
+    frameCount++;
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
 // ---------- Scroll reveal ----------
 (function () {
   var items = document.querySelectorAll('.reveal');
