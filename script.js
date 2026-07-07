@@ -392,6 +392,118 @@ var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matche
   draw();
 })();
 
+// ---------- Magnetic nav name letters ----------
+(function () {
+  var nav = document.getElementById('navName');
+  if (!nav) return;
+  var letters = nav.querySelectorAll('.ml');
+  document.addEventListener('mousemove', function (e) {
+    letters.forEach(function (letter) {
+      var rect = letter.getBoundingClientRect();
+      var cx = rect.left + rect.width / 2;
+      var cy = rect.top + rect.height / 2;
+      var dist = Math.hypot(e.clientX - cx, e.clientY - cy);
+      var maxDist = 60;
+      var strength = Math.max(0, 1 - dist / maxDist);
+      var scale = 1 + strength * 0.3;
+      var lift = -strength * 4;
+      letter.style.transform = 'translateY(' + lift + 'px) scale(' + scale + ')';
+    });
+  });
+})();
+
+// ---------- Scroll-spy nav highlighting ----------
+(function () {
+  var navLinks = document.querySelectorAll('.nav-links a');
+  if (!navLinks.length || !('IntersectionObserver' in window)) return;
+
+  var sectionMap = {};
+  navLinks.forEach(function (link) {
+    var id = link.getAttribute('href').replace('#', '');
+    var section = document.getElementById(id);
+    if (section) sectionMap[id] = link;
+  });
+
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      var id = entry.target.id;
+      var link = sectionMap[id];
+      if (!link) return;
+      if (entry.isIntersecting) {
+        navLinks.forEach(function (l) { l.classList.remove('active'); });
+        link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
+
+  Object.keys(sectionMap).forEach(function (id) {
+    observer.observe(document.getElementById(id));
+  });
+})();
+
+// ---------- Project card 3D tilt ----------
+(function () {
+  var cards = document.querySelectorAll('.project-card');
+  cards.forEach(function (card) {
+    card.addEventListener('mousemove', function (e) {
+      var rect = card.getBoundingClientRect();
+      var px = (e.clientX - rect.left) / rect.width;
+      var py = (e.clientY - rect.top) / rect.height;
+      var rotateY = (px - 0.5) * 10;
+      var rotateX = (0.5 - py) * 10;
+      card.style.transform =
+        'perspective(700px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg)';
+    });
+    card.addEventListener('mouseleave', function () {
+      card.style.transform = 'perspective(700px) rotateX(0deg) rotateY(0deg)';
+    });
+  });
+})();
+
+// ---------- Typewriter status line ----------
+(function () {
+  var el = document.getElementById('typewriterText');
+  if (!el) return;
+  var messages = [
+    'currently building: EEG classifier, robotic arm control, biosignal dashboard',
+    'status: 4 independent projects in progress',
+  ];
+  var msgIndex = 0;
+  var charIndex = 0;
+  var deleting = false;
+  var reducedMotionTW = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function tick() {
+    var current = messages[msgIndex];
+    if (!deleting) {
+      charIndex++;
+      el.textContent = '> ' + current.slice(0, charIndex);
+      if (charIndex === current.length) {
+        deleting = true;
+        setTimeout(tick, 1800);
+        return;
+      }
+      setTimeout(tick, 38);
+    } else {
+      charIndex--;
+      el.textContent = '> ' + current.slice(0, charIndex);
+      if (charIndex === 0) {
+        deleting = false;
+        msgIndex = (msgIndex + 1) % messages.length;
+        setTimeout(tick, 400);
+        return;
+      }
+      setTimeout(tick, 18);
+    }
+  }
+
+  if (reducedMotionTW) {
+    el.textContent = '> ' + messages[0];
+  } else {
+    tick();
+  }
+})();
+
 // ---------- Scroll reveal ----------
 (function () {
   var items = document.querySelectorAll('.reveal');
